@@ -47,7 +47,7 @@ void init_trig(void) {
     }
 }
 
-void rotateRight(vectors_t* dir, vectors_t* plane){
+void rotateRight(vectors_t* dir, vectors_t* plane, uint8_t map[99][99]){
     float dirX = dir->x, dirY = dir->y;
     float planeX = plane->x, planeY = plane->y;
     float oldDirX = dirX;
@@ -58,7 +58,7 @@ void rotateRight(vectors_t* dir, vectors_t* plane){
     plane->y = oldPlaneX * sin(-ROTSPEED) + planeY * cos(-ROTSPEED);
 }
 
-void rotateLeft(vectors_t* dir, vectors_t* plane){
+void rotateLeft(vectors_t* dir, vectors_t* plane, uint8_t map[99][99]){
     float dirX = dir->x, dirY = dir->y;
     float planeX = plane->x, planeY = plane->y;
     float oldDirX = dirX;
