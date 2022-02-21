@@ -16,6 +16,7 @@
 #include <math.h>
 #include <limits.h>
 
+#include "setup.h"
 #include "unpack.h"
 #include "gfx/level.h"
 #include "gfx/textures.h"
@@ -84,6 +85,9 @@ int main(void)
     vectors_t dir = {-1.0, 0.0}             // initial standing direction
     vectors_t plane = {0.0, 0.66}           // camera plane (whatever tf this does)
     size_t panic=0, ticks=0;
+
+	BeginColumnMode();
+
     srandom(rtc_Time());
     unpack1bpp(maze_decompressed, maze_data, sizeof maze_data);
     while(gameplay){
@@ -100,5 +104,7 @@ int main(void)
             if(randInt(0, 5) < panic)
                 renderHorror();
     }
+
+	EndColumnMode();
     return 0;
 }
