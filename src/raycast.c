@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -9,17 +8,22 @@
 #include "defines.h"
 #include "render.h"
 
-void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
+uint8_t texHeight = 8;
+uint8_t texWidth = 8;
+uint8_t h = 240;
+uint24_t w = 320;
+
+void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][99]) {
     for(int x = 0; x < w; x++)
     {
       //calculate ray position and direction
-      float cameraX = 2*x/float(w)-1; //x-coordinate in camera space
+      float cameraX = 2*x/((float)w)-1; //x-coordinate in camera space
       float rayDirX = dir->x + plane->y*cameraX;
       float rayDirY = dir->y + plane->y*cameraX;
 
       //which box of the map we're in
-      int mapX = int(pos->x);
-      int mapY = int(pos->y);
+      int mapX = (int)pos->x;
+      int mapY = (int)pos->y;
 
       //length of ray from current position to next x or y-side
       float sideDistX;
@@ -75,7 +79,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
           side = 1;
         }
         //Check if ray has hit a wall
-        if (worldMap[mapX + mapY * MAP_WIDTH] > 0) hit = 1;
+        if (map[mapX + mapY * MAP_WIDTH] > 0) hit = 1;
       }
 
       //Calculate distance of perpendicular ray (Euclidean distance would give fisheye effect!)
@@ -92,16 +96,16 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
       if(drawEnd >= h) drawEnd = h - 1;
       
       //texturing calculations
-      int texNum = (worldMap[mapX][mapY]>>1) - 1; //1 subtracted from it so that texture 0 can be used!
+      int texNum = ((map[mapX][mapY])>>1) - 1; //1 subtracted from it so that texture 0 can be used!
 
       //calculate value of wallX
       float wallX; //where exactly the wall was hit
-      if (side == 0) wallX = posY + perpWallDist * rayDirY;
-      else           wallX = posX + perpWallDist * rayDirX;
+      if (side == 0) wallX = pos->y + perpWallDist * rayDirY;
+      else           wallX = pos->x + perpWallDist * rayDirX;
       wallX -= floor((wallX));
 
       //x coordinate on the texture
-      int texX = int(wallX * double(texWidth));
+      int texX = (int)(wallX * (float)texWidth);
       if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
       if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
       
@@ -110,16 +114,8 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
       // Starting texture coordinate
       float texPos = (drawStart - h / 2 + lineHeight / 2) * step;
       
-      for(int y = drawStart; y<drawEnd; y++)
-      {
-        // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-        int texY = (int)texPos & (texHeight - 1);
-        texPos += step;
-        Uint32 color = texture[texNum][texHeight * texY + texX];
-        //make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-        if(side == 1) color = (color >> 1) & 8355711;
-        buffer[y][x] = color;
-      }
-      RenderColumn(x, y, drawEnd-drawStart, texNum);
+      RenderColumn(x, drawStart, drawEnd-drawStart, texNum);
     }
 }
+
+void renderHorror(void){}
