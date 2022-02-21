@@ -1,5 +1,15 @@
 
-void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][99]){
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include <keypadc.h>
+#include <math.h>
+#include <limits.h>
+
+#include "defines.h"
+#include "render.h"
+
+void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
     for(int x = 0; x < w; x++)
     {
       //calculate ray position and direction
@@ -65,7 +75,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
           side = 1;
         }
         //Check if ray has hit a wall
-        if (worldMap[mapX][mapY] > 0) hit = 1;
+        if (worldMap[mapX + mapY * MAP_WIDTH] > 0) hit = 1;
       }
 
       //Calculate distance of perpendicular ray (Euclidean distance would give fisheye effect!)
