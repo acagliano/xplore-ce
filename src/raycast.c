@@ -31,7 +31,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
       if (rayDirX < 0)
       {
         stepX = -1;
-        sideDistX = (pos->x - map->x) * deltaDistX;
+        sideDistX = (pos->x - mapX) * deltaDistX;
       }
       else
       {
@@ -41,7 +41,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
       if (rayDirY < 0)
       {
         stepY = -1;
-        sideDistY = (pos->y - map->y) * deltaDistY;
+        sideDistY = (pos->y - mapY) * deltaDistY;
       }
       else
       {
@@ -99,6 +99,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
       float step = 1.0 * texHeight / lineHeight;
       // Starting texture coordinate
       float texPos = (drawStart - h / 2 + lineHeight / 2) * step;
+      
       for(int y = drawStart; y<drawEnd; y++)
       {
         // Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
@@ -109,5 +110,6 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
         if(side == 1) color = (color >> 1) & 8355711;
         buffer[y][x] = color;
       }
+      RenderColumn(x, y, drawEnd-drawStart, texNum);
     }
 }
