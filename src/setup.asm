@@ -20,10 +20,6 @@ mpLcdCtrl    = $E30018
 lcdBpp8      = $27
 lcdBpp16     = $2C
 
-lcd          = ti.vRam + 8
-lcd.width    = ti.lcdWidth
-lcd.height   = ti.lcdHeight
-lcd.size     = lcd.width * lcd.height
 
 _boot_ClearVRAM := $000374
 
