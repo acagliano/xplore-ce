@@ -24,7 +24,8 @@
 #include "gfx/textures.h"
 
 uint8_t *map;
-size_t map_size = 99*99;
+const size_t map_size = 99*99;
+uint8_t mapbuffer[map_size];
 
 int sin_table[TRIG_PRECISION / 4];
 int sec_table[TRIG_PRECISION / 4];
@@ -78,6 +79,8 @@ int main(void) {
     vectors_t plane = {0.0, 0.66};           // camera plane (whatever tf this does)
     size_t panic=0, ticks=0;
 
+	map = &mapbuffer;
+
 	BeginColumnMode();
 
     srandom(rtc_Time());
@@ -86,10 +89,11 @@ int main(void) {
         //render(map, map_size, player_x, player_y, player_angle);
         
         // key detect
-        kb_ScanGroup(7);
+        kb_Scan();
         if(kb_Data[7] & kb_Up) walkForward(&pos, &dir, map);
         if(kb_Data[7] & kb_Left) rotateLeft(&dir, &plane);
         if(kb_Data[7] & kb_Right) rotateRight(&dir, &plane);
+		if (kb_Data[6] & kb_Clear) gameplay = false;
         
         if(++ticks == 0) panic += (panic<3);
         if(panic)

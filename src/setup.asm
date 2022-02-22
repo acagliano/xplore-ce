@@ -16,10 +16,15 @@ spiData      = 24
 pSpiData     = pSpiRange + spiData
 mpSpiData    = mpSpiRange + spiData
 
+lcdTiming0   = $00
+lcdCtrl      = $18
+mpLcdUpbase  = $E30010
 mpLcdCtrl    = $E30018
+mpLcdPalette = $E30200
 lcdBpp8      = $27
 lcdBpp16     = $2C
 
+vRam         = $D40000
 
 _boot_ClearVRAM := $000374
 
@@ -72,7 +77,28 @@ _BeginColumnMode:
      set     5,(hl)
 	dec hl
 	ld	(hl),lcdBpp8
-	jr _EndColumnMode.clearvram
+	call _boot_ClearVRAM
+	ld	de,mpLcdPalette	; address of mmio palette
+	ld	b,e			; b = 0
+.loop:
+	ld	a,b
+	rrca
+	xor	a,b
+	and	a,224
+	xor	a,b
+	ld	(de),a
+	inc	de
+	ld	a,b
+	rla
+	rla
+	rla
+	ld	a,b
+	rra
+	ld	(de),a
+	inc	de
+	inc	b
+	jr	nz,.loop		; loop for 256 times to fill palette
+	ret
 
 _EndColumnMode:
 	spi	$2a, 0,0, 1,$3f
@@ -80,7 +106,32 @@ _EndColumnMode:
 	spi	$36, $08
 	ld	a,lcdBpp16
 	ld	(mpLcdCtrl),a
-.clearvram:
-	jp _boot_ClearVRAM
+	call _boot_ClearVRAM
+	ld	bc,vRam
+	ld	(mpLcdUpbase),bc			; set the current draw to the screen
+	ld	l,lcdCtrl
+	ld	(hl),de			; set lots of control parameters
+	ld	l,lcdTiming0+1
+	ld	de,_LcdTiming
+assert vRam and $FF = 0
+	ld	b,8+1			; +1 because c = 0, so first ldi will
+					; decrement b
+.ExchangeTimingLoop:			; exchange stored and active timing
+	ld	a,(de)
+	ldi
+	dec	hl
+	ld	(hl),a
+	inc	hl
+	djnz	.ExchangeTimingLoop
+	ret
 
+_LcdTiming:
+;	db	14 shl 2		; PPL shl 2
+	db	7			; HSW
+	db	87			; HFP
+	db	63			; HBP
+	dw	(0 shl 10)+319		; (VSW shl 10)+LPP
+	db	179			; VFP
+	db	0			; VBP
+	db	(0 shl 6)+(0 shl 5)+0	; (ACB shl 6)+(CLKSEL shl 5)+PCD_LO
 
