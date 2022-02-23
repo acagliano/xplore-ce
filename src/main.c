@@ -99,8 +99,8 @@ int main(void) {
 	gfx_SetDrawBuffer();
     while(gameplay) {
 		if (need_render) {
-			sprintf(((char *)0xFB0000), "pos: %i, %i\n", (int)(pos.x*1000), (int)(pos.y*1000));
-			sprintf(((char *)0xFB0000), "dir: %i, %i\n", (int)(dir.x*1000), (int)(dir.y*1000));
+			// sprintf(((char *)0xFB0000), "pos: %i, %i\n", (int)(pos.x*1000), (int)(pos.y*1000));
+			// sprintf(((char *)0xFB0000), "dir: %i, %i\n", (int)(dir.x*1000), (int)(dir.y*1000));
 			gfx_ZeroScreen();
 			raycast(&pos, &dir, &plane, &map);
 			gfx_Blit(1);

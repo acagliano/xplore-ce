@@ -21,7 +21,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
 	// RenderColumn(10, 12, 100, 0); // testing
 	// return;
     
-	for(int x = 0; x < w; x+=3)
+	for(int x = 20; x < w-20; x+=2)
     {
 	  uint8_t texNum;
       //calculate ray position and direction
