@@ -70,12 +70,12 @@ void walkForward(vectors_t* player, vectors_t* dir, uint8_t *map) {
     float dirX = dir->x, dirY = dir->y;
 	float posX = player->x, posY = player->y;
     if(map[(int)(posX + dir->x * MOVESPEED + posY * MAP_WIDTH)]) {
-		player->x = posX + dir->x * (MOVESPEED / 1.05f);
+		player->x = posX + dir->x * (MOVESPEED / 1.1f);
 	} else {
 		player->x += dirX * MOVESPEED;
 	}
     if(map[(int)(posX + (posY + dir->y * MOVESPEED) * MAP_WIDTH)]) {
-		player->y = posY + dir->y * (MOVESPEED / 1.05f);
+		player->y = posY + dir->y * (MOVESPEED / 1.1f);
 	} else {
 		player->y += dirY * MOVESPEED;
 	}

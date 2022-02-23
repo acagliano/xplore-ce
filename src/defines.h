@@ -8,8 +8,8 @@
 #define TRIG_PRECISION_BITS 8
 #define TRIG_PRECISION (1 << TRIG_PRECISION_BITS)
 
-#define ROTSPEED 0.2f
-#define MOVESPEED 1
+#define ROTSPEED 0.5f
+#define MOVESPEED 0.8f
 
 // vector struct
 typedef struct {
