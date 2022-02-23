@@ -8,7 +8,7 @@
 #define TRIG_PRECISION_BITS 8
 #define TRIG_PRECISION (1 << TRIG_PRECISION_BITS)
 
-#define ROTSPEED 10
+#define ROTSPEED 0.2f
 #define MOVESPEED 1
 
 // vector struct

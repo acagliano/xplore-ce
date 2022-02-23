@@ -5,11 +5,11 @@
 extern "C" {
 #endif
 
-#define wall_glitched_width 8
-#define wall_glitched_height 9
-#define wall_glitched_size 74
+#define wall_glitched_width 32
+#define wall_glitched_height 32
+#define wall_glitched_size 1026
 #define wall_glitched ((gfx_sprite_t*)wall_glitched_data)
-extern unsigned char wall_glitched_data[74];
+extern unsigned char wall_glitched_data[1026];
 
 #ifdef __cplusplus
 }

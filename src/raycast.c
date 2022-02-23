@@ -8,17 +8,25 @@
 #include "defines.h"
 #include "render.h"
 
+#define MAP_WIDTH 99
+#define MAX_HEIGHT 99
+
+#define h 240
+#define w 320
 uint8_t texHeight = 8;
 uint8_t texWidth = 8;
-uint8_t h = 240;
-uint24_t w = 320;
 
-void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][99]) {
-    for(int x = 0; x < w; x++)
+void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
+	
+	// RenderColumn(10, 12, 100, 0); // testing
+	// return;
+    
+	for(int x = 0; x < w; x+=3)
     {
+	  uint8_t texNum;
       //calculate ray position and direction
       float cameraX = 2*x/((float)w)-1; //x-coordinate in camera space
-      float rayDirX = dir->x + plane->y*cameraX;
+      float rayDirX = dir->x + plane->x*cameraX;
       float rayDirY = dir->y + plane->y*cameraX;
 
       //which box of the map we're in
@@ -30,8 +38,8 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
       float sideDistY;
 
       //length of ray from one x or y-side to next x or y-side
-      float deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX));
-      float deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY));
+      float deltaDistX = (rayDirX == 0) ? 1e30 : fabsf(1 / rayDirX);
+      float deltaDistY = (rayDirY == 0) ? 1e30 : fabsf(1 / rayDirY);
       float perpWallDist;
 
       //what direction to step in x or y-direction (either +1 or -1)
@@ -79,7 +87,8 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
           side = 1;
         }
         //Check if ray has hit a wall
-        if (map[mapX + mapY * MAP_WIDTH] > 0) hit = 1;
+		if (mapX < 0 || mapX >= MAP_WIDTH || mapY < 0 || mapY >= MAX_HEIGHT) break;
+        if ((texNum = map[mapX + mapY * MAP_WIDTH]) > 0) hit = 1;
       }
 
       //Calculate distance of perpendicular ray (Euclidean distance would give fisheye effect!)
@@ -95,26 +104,25 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t map[99][9
       int drawEnd = lineHeight / 2 + h / 2;
       if(drawEnd >= h) drawEnd = h - 1;
       
-      //texturing calculations
-      int texNum = ((map[mapX][mapY])>>1) - 1; //1 subtracted from it so that texture 0 can be used!
 
       //calculate value of wallX
-      float wallX; //where exactly the wall was hit
-      if (side == 0) wallX = pos->y + perpWallDist * rayDirY;
-      else           wallX = pos->x + perpWallDist * rayDirX;
-      wallX -= floor((wallX));
+      // float wallX; //where exactly the wall was hit
+      // if (side == 0) wallX = pos->y + perpWallDist * rayDirY;
+      // else           wallX = pos->x + perpWallDist * rayDirX;
+      // wallX -= floor((wallX));
 
       //x coordinate on the texture
-      int texX = (int)(wallX * (float)texWidth);
-      if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
-      if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
+      // int texX = (int)(wallX * (float)texWidth);
+      // if(side == 0 && rayDirX > 0) texX = texWidth - texX - 1;
+      // if(side == 1 && rayDirY < 0) texX = texWidth - texX - 1;
       
     // How much to increase the texture coordinate per screen pixel
-      float step = 1.0 * texHeight / lineHeight;
+      // float step = 1.0 * texHeight / lineHeight;
       // Starting texture coordinate
-      float texPos = (drawStart - h / 2 + lineHeight / 2) * step;
+      // float texPos = (drawStart - h / 2 + lineHeight / 2) * step;
       
-      RenderColumn(x, drawStart, drawEnd-drawStart, texNum);
+	  int wallHeight = ((drawEnd-drawStart)>0?drawEnd-drawStart:1);
+      RenderColumn(x, (drawStart>0?drawStart:0), (wallHeight>=240?240:wallHeight), (texNum>1?1:texNum));
     }
 }
 

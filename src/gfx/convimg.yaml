@@ -5,10 +5,6 @@ palettes:
              - color: {index: 1, r: 0, g: 0, b: 0}
             images:
              - maze.png
-          - name: texturepal
-            images:
-             - wall.png
-             - wall_glitched.png
 
 converts:
           - name: level
@@ -18,7 +14,7 @@ converts:
               - maze.png
           - name: textures
             bpp: 8
-            palette: texturepal
+            palette: xlibc
             images:
              - wall.png
              - wall_glitched.png
