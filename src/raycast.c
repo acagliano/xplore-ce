@@ -8,6 +8,7 @@
 #include "defines.h"
 #include "render.h"
 
+
 #define MAP_WIDTH 99
 #define MAX_HEIGHT 99
 
@@ -15,6 +16,7 @@
 #define w 320
 uint8_t texHeight = 8;
 uint8_t texWidth = 8;
+uint8_t sin_table[64];
 
 void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
 	
@@ -127,3 +129,68 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
 }
 
 void renderHorror(void){}
+
+
+void trig_init(void){
+    for(int i=0; i<64; i++)
+        sin_table[i] = (int)(sin(i) * 256);
+}
+
+int SIN(uint8_t n) {
+  s = sin_table[(n & 127) > 63 ? 63 - n & 63 : n & 63];
+  if (n > 127) n = -n;
+}
+
+#define COS(n)  SIN((n)+64)
+
+void rotateRight(vectors_t* dir, vectors_t* plane) {
+    float dirX = dir->x, dirY = dir->y;
+    float planeX = plane->x, planeY = plane->y;
+    float oldDirX = dirX;
+    dir->x = dirX * cos(-ROTSPEED) - dirY * sin(-ROTSPEED);
+    dir->y = oldDirX * sin(-ROTSPEED) + dirY * cos(-ROTSPEED);
+    float oldPlaneX = planeX;
+    plane->x = planeX * cos(-ROTSPEED) - planeY * sin(-ROTSPEED);
+    plane->y = oldPlaneX * sin(-ROTSPEED) + planeY * cos(-ROTSPEED);
+}
+
+void rotateLeft(vectors_t* dir, vectors_t* plane) {
+    float dirX = dir->x, dirY = dir->y;
+    float planeX = plane->x, planeY = plane->y;
+    float oldDirX = dirX;
+    dir->x = dirX * cos(ROTSPEED) - dirY * sin(ROTSPEED);
+    dir->y = oldDirX * sin(ROTSPEED) + dirY * cos(ROTSPEED);
+    float oldPlaneX = planeX;
+    plane->x = planeX * cos(ROTSPEED) - planeY * sin(ROTSPEED);
+    plane->y = oldPlaneX * sin(ROTSPEED) + planeY * cos(ROTSPEED);
+}
+
+void walkForward(vectors_t* player, vectors_t* dir, uint8_t *map) {
+    float dirX = dir->x, dirY = dir->y;
+	float posX = player->x, posY = player->y;
+    if(map[(int)(posX + dir->x * MOVESPEED + posY * MAP_WIDTH)]) {
+		player->x = posX + dir->x * (MOVESPEED / 1.1f);
+	} else {
+		player->x += dirX * MOVESPEED;
+	}
+    if(map[(int)(posX + (posY + dir->y * MOVESPEED) * MAP_WIDTH)]) {
+		player->y = posY + dir->y * (MOVESPEED / 1.1f);
+	} else {
+		player->y += dirY * MOVESPEED;
+	}
+}
+
+void walkBackward(vectors_t* player, vectors_t* dir, uint8_t *map) {
+    float dirX = dir->x, dirY = dir->y;
+	float posX = player->x, posY = player->y;
+    if(map[(int)(posX - dir->x * MOVESPEED + posY * MAP_WIDTH)]) {
+		player->x = posX - dir->x * (MOVESPEED / 1.1f);
+	} else {
+		player->x -= dirX * MOVESPEED;
+	}
+    if(map[(int)(posX + (posY - dir->y * MOVESPEED) * MAP_WIDTH)]) {
+		player->y = posY - dir->y * (MOVESPEED / 1.1f);
+	} else {
+		player->y -= dirY * MOVESPEED;
+	}
+}
