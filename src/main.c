@@ -69,8 +69,8 @@ int main(void) {
 	bool need_render = true;
     kb_key_t key = 0;
     vectors_t pos = {99/2, 99/2};                     // this should eventually be set to a random point in maze that's valid
-    vectors_t dir = {-1.0, 0.0};             // initial standing direction
-    vectors_t plane = {0.0, 0.66};           // camera plane (whatever tf this does)
+    vectors_t dir = {-1, 0};             // initial standing direction
+    vectors_t plane = {0, (0.66*256)};           // camera plane (whatever tf this does)
     size_t panic=0, ticks=0;
 
 	gfx_Begin();

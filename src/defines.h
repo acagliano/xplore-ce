@@ -13,8 +13,8 @@
 
 // vector struct
 typedef struct {
-	float x;
-	float y;
+	int x;
+	int y;
 } vectors_t;
 
 #endif

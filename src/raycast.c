@@ -16,7 +16,76 @@
 #define w 320
 uint8_t texHeight = 8;
 uint8_t texWidth = 8;
-uint8_t sin_table[64];
+
+//credit: https://theshoemaker.de/2016/02/ray-casting-in-2d-grids/
+//though I've rewritten a lot of it
+//returns 0 if hits across x axis, non-zero if y axis
+uint8_t raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
+    uint startX = pos->x * 256;
+    uint startY = pos->y * 256;
+    for(int x = 20; x < w-20; x+=1)
+        int dirX = fast_sec(angle);
+        int dirY = fast_csc(angle);
+
+        int8_t dirSignX = dirX >= 0 ? 1 : -1;
+        int8_t dirSignY = dirY >= 0 ? 1 : -1;
+        int8_t row_offset = dirY >= 0 ? LEVEL_SIZE_X : -LEVEL_SIZE_X;
+
+        int8_t tileX = COORD_TO_X_TILE(startX);
+        int8_t tileY = COORD_TO_Y_TILE(startY);
+        const tile_t *tile_ptr = &tiles[tileY][tileX];
+        int t = 0;
+
+        int dtX = (TILE_TO_X_COORD(tileX + (dirX >= 0)) - startX) * dirX;
+        int dtY = (TILE_TO_Y_COORD(tileY + (dirY >= 0)) - startY) * dirY;
+
+        int dtXr = TILE_SIZE * dirSignX * dirX;
+        int dtYr = TILE_SIZE * dirSignY * dirY;
+
+        if(dirX == INT_MAX || dirX == INT_MIN) {
+            dtXr = INT_MAX;
+            dtX = INT_MAX;
+        }
+
+        if(dirY == INT_MAX || dirY == INT_MIN) {
+            dtYr = INT_MAX;
+            dtY = INT_MAX;
+        }
+
+        while(true) {
+            tile_t tile = *tile_ptr;
+
+            if(TILE_HEIGHT(tile)) {
+                break;
+            }
+
+        //not entirely sure how this works
+            if(dtX < dtY) {
+                t += dtX;
+                tile_ptr += dirSignX;
+                dtY -= dtX;
+                dtX = dtXr;
+            } else {
+                t += dtY;
+                tile_ptr += row_offset;
+                dtX -= dtY;
+                dtY = dtYr;
+            }
+        }
+
+    }
+    //store into result if it exists
+    if(result != nullptr) {
+        result->x1 = startX;
+        result->y1 = startY;
+        result->x2 = t / dirX + startX;
+        result->y2 = t / dirY + startY;
+    }
+    if(angle == 0 || angle == 128) return AXIS_X; //return 0 if angle is horizontal - not sure why
+    if(angle == 64 || angle == 192) return AXIS_Y;
+    return dtX == dtXr ? AXIS_X : AXIS_Y; //if dtX == dtXr, last movement was X
+}
+a
 
 void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
 	
@@ -27,22 +96,22 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
     {
 	  uint8_t texNum;
       //calculate ray position and direction
-      float cameraX = 2*x/((float)w)-1; //x-coordinate in camera space
-      float rayDirX = dir->x + plane->x*cameraX;
-      float rayDirY = dir->y + plane->y*cameraX;
+      int cameraX = 2*x/(w)-1; //x-coordinate in camera space
+      int rayDirX = dir->x + plane->x*cameraX;
+      int rayDirY = dir->y + plane->y*cameraX;
 
       //which box of the map we're in
       int mapX = (int)pos->x;
       int mapY = (int)pos->y;
 
       //length of ray from current position to next x or y-side
-      float sideDistX;
-      float sideDistY;
+      int sideDistX;
+      int sideDistY;
 
       //length of ray from one x or y-side to next x or y-side
-      float deltaDistX = (rayDirX == 0) ? 1e30 : fabsf(1 / rayDirX);
-      float deltaDistY = (rayDirY == 0) ? 1e30 : fabsf(1 / rayDirY);
-      float perpWallDist;
+      int deltaDistX = (rayDirX == 0) ? 1e30 : fabsf(1 / rayDirX);
+      int deltaDistY = (rayDirY == 0) ? 1e30 : fabsf(1 / rayDirY);
+      int perpWallDist;
 
       //what direction to step in x or y-direction (either +1 or -1)
       int stepX;
@@ -124,7 +193,7 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
       // float texPos = (drawStart - h / 2 + lineHeight / 2) * step;
       
 	  int wallHeight = ((drawEnd-drawStart)>0?drawEnd-drawStart:1);
-      RenderColumn(x, (drawStart>0?drawStart:0), (wallHeight>=240?240:wallHeight), (texNum>1?1:texNum));
+      RenderColumn(x/256, (drawStart>0?drawStart:0), (wallHeight>=240?240:wallHeight), (texNum>1?1:texNum));
     }
 }
 
@@ -137,8 +206,9 @@ void trig_init(void){
 }
 
 int SIN(uint8_t n) {
-  s = sin_table[(n & 127) > 63 ? 63 - n & 63 : n & 63];
-  if (n > 127) n = -n;
+  int s = sin_table[(n & 127) > 63 ? 63 - n & 63 : n & 63];
+  if (n > 127) s = -s;
+  return s;
 }
 
 #define COS(n)  SIN((n)+64)
