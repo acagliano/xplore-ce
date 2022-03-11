@@ -5,15 +5,15 @@
 #include <math.h>
 #include <limits.h>
 
-#include "defines.h"
+#include "../defines.h"
 #include "render.h"
 
 
 #define MAP_WIDTH 99
 #define MAX_HEIGHT 99
 
-#define h 240
-#define w 320
+#define VIEWPORT_H 240
+#define VIEWPORT_W 320
 uint8_t texHeight = 8;
 uint8_t texWidth = 8;
 
@@ -74,19 +74,19 @@ uint8_t raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) 
         }
 
     }
-    //store into result if it exists
-    if(result != nullptr) {
-        result->x1 = startX;
-        result->y1 = startY;
-        result->x2 = t / dirX + startX;
-        result->y2 = t / dirY + startY;
-    }
-    if(angle == 0 || angle == 128) return AXIS_X; //return 0 if angle is horizontal - not sure why
-    if(angle == 64 || angle == 192) return AXIS_Y;
-    return dtX == dtXr ? AXIS_X : AXIS_Y; //if dtX == dtXr, last movement was X
-}
-a
+    // compute necessities for texture render
+    int lineDist = (t * t / dirX / dirX) + (t * t / dirY / dirY);
+    int drawHeight = isqrt(VIEWPORT_H * VIEWPORT_H / lineDist);
+    uint8_t drawColumnY = (VIEWPORT_H>>1) - (drawHeight>>1);
+    RenderColumn(
+        x,                                      // x
+        (drawColumnY>0?drawColumnY:0),          // y
+        (drawHeight>=240?240:drawHeight),       // h
+        (texNum>1?1:texNum));                   // texture num
+ }
+    
 
+/*
 void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
 	
 	// RenderColumn(10, 12, 100, 0); // testing
@@ -196,20 +196,9 @@ void raycast(vectors_t* pos, vectors_t* dir, vectors_t* plane, uint8_t *map) {
       RenderColumn(x/256, (drawStart>0?drawStart:0), (wallHeight>=240?240:wallHeight), (texNum>1?1:texNum));
     }
 }
-
+*/
 void renderHorror(void){}
 
-
-void trig_init(void){
-    for(int i=0; i<64; i++)
-        sin_table[i] = (int)(sin(i) * 256);
-}
-
-int SIN(uint8_t n) {
-  int s = sin_table[(n & 127) > 63 ? 63 - n & 63 : n & 63];
-  if (n > 127) s = -s;
-  return s;
-}
 
 #define COS(n)  SIN((n)+64)
 

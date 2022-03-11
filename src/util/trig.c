@@ -1,4 +1,4 @@
-include <math.h>
+#include <math.h>
 #include <limits.h>
 #include "trig.h"
 
@@ -81,4 +81,23 @@ uint fast_atan2(int y, int x) {
             return DEGREES_TO_ANGLE(270) - unrotated;
         }
     }
+}
+
+unsigned int isqrt( unsigned int y )
+{
+	unsigned int L = 0;
+	unsigned int M;
+	unsigned int R = y + 1;
+
+    while( L != R - 1 )
+    {
+        M = (L + R) / 2;
+
+		if( M * M <= y )
+			L = M;
+		else
+			R = M;
+	}
+
+    return L;
 }

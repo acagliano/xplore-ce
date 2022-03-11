@@ -1,5 +1,5 @@
-#ifndef TANKS_TRIG_H
-#define TANKS_TRIG_H
+#ifndef INT_TRIG_H
+#define INT_TRIG_H
 
 #include "util.h"
 
@@ -22,5 +22,7 @@ int fast_sec(angle_t angle);
 
 uint fast_atan2(int y, int x);
 
-#endif //TANKS_TRIG_H
+unsigned int isqrt(unsigned int y);
+
+#endif //INT_TRIG_H
 
